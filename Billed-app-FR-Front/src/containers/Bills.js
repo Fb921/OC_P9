@@ -21,10 +21,12 @@ export default class {
   }
 
   handleClickIconEye = (icon) => {
+    console.log("Un click a été fait")
     const billUrl = icon.getAttribute("data-bill-url")
     const imgWidth = Math.floor($('#modaleFile').width() * 0.5)
     $('#modaleFile').find(".modal-body").html(`<div style='text-align: center;' class="bill-proof-container"><img width=${imgWidth} src=${billUrl} alt="Bill" /></div>`)
     $('#modaleFile').modal('show')
+    // document.querySelector('#modaleFile').classList.add("show");
   }
 
   getBills = () => {

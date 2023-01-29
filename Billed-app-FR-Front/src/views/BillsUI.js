@@ -19,7 +19,17 @@ const row = (bill) => {
     `)
   }
 
+function sort_by_date(d1,d2){
+  let date1 = new Date(d1.date);
+  let date2 = new Date(d2.date);
+  return (date1 < date2)? 1 : -1;
+}
+
 const rows = (data) => {
+  if(data && data.length){
+    data=data.sort(sort_by_date);
+  }
+  /*Ici on trie les bills par date */
   return (data && data.length) ? data.map(bill => row(bill)).join("") : ""
 }
 
