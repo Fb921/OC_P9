@@ -14,7 +14,7 @@ export default () => {
   rootDiv.innerHTML = ROUTES({ pathname: window.location.pathname })
 
   window.onNavigate = (pathname) => {
-    console.log(onNavigate);
+    // console.log(onNavigate);
 
     window.history.pushState(
       {},
@@ -27,7 +27,7 @@ export default () => {
       document.body.style.backgroundColor="#0E5AE5"
       new Login({ document, localStorage, onNavigate, PREVIOUS_LOCATION, store })
     } else if (pathname === ROUTES_PATH['Bills']) {
-      console.log(ROUTES_PATH['Bills'])
+      // console.log(ROUTES_PATH['Bills'])
       rootDiv.innerHTML = ROUTES({ pathname, loading: true })
       const divIcon1 = document.getElementById('layout-icon1')
       const divIcon2 = document.getElementById('layout-icon2')

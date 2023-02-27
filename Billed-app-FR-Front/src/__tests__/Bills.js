@@ -7,12 +7,16 @@ import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
 import { ROUTES_PATH} from "../constants/routes.js";
 import {localStorageMock} from "../__mocks__/localStorage.js";
-import mockedBills from "../__mocks__/store.js";
+import storeMock from "../__mocks__/store.js";
+import { formatDate, formatStatus } from "../app/format.js"
 
 import router from "../app/Router.js";
 
 // To test Bills.js
 import Bills from "../containers/Bills.js";
+
+import $ from "jquery"
+import modal from "jquery-modal"
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
@@ -29,8 +33,7 @@ describe("Given I am connected as an employee", () => {
       window.onNavigate(ROUTES_PATH.Bills)
       await waitFor(() => screen.getByTestId('icon-window'))
       const windowIcon = screen.getByTestId('icon-window')
-      //to-do write expect expression
-      // expect(windowIcon.classList[0]).toEqual("active-icon");
+      expect(windowIcon.classList[0]).toEqual("active-icon");
     })
     test("Then bills should be ordered from earliest to latest", () => {
       document.body.innerHTML = BillsUI({ data: bills })
@@ -39,31 +42,55 @@ describe("Given I am connected as an employee", () => {
       const datesSorted = [...dates].sort(antiChrono)
       expect(dates).toEqual(datesSorted)
     })
-    test("Then bills should appear", async function () {
+    test("Then all bills should appear in the correct date format", async function () {
       const root = document.createElement("div")
       root.setAttribute("id", "root")
       document.body.append(root)
       document.getElementById('root').innerHTML = BillsUI({ data: bills })
-      let datas;
-      const store = mockedBills
+      let datas1 = [];
+      var datas2 = [];
+      const store = storeMock;
       const onNavigate = jest.fn()
-      let b = new Bills({document, onNavigate, store, localStorageMock});
-      expect(b.getBills().then(data => {datas = data})).toEqual(mockedBills.bills().list());      
+      let b = new Bills({document,onNavigate,store,localStorageMock});
+      b.getBills().then(v => {datas1 = v;})
+      store.bills().list().then(data =>{
+        const d=data.map(doc => {
+          try {
+            return {
+              ...doc,
+              date: formatDate(doc.date),              
+              status: formatStatus(doc.status)
+            }
+          } catch(e) {
+            return {
+              ...doc,
+              date: doc.date,
+              status: formatStatus(doc.status)
+            }
+          }
+        }); datas2 = d;});
+        await datas1;
+        await datas2;
+        expect(datas1).toEqual(datas2);
+      })
     })
-  })
-  describe("When I click on icon eye", () => {
-    test("Then bill details should appear", async () => {
-      const root = document.createElement("div")
-      root.setAttribute("id", "root")
-      document.body.append(root)
-      document.getElementById('root').innerHTML = BillsUI({ data: bills })
-      
-
-      // génère une erreur car "modal" non  (jquery) considérée comme fonction
-      document.querySelector(`div[data-testid="icon-eye"]`).click();
-      // expect(docusment.querySelector('#modaleFile').classList[2]).toEqual("show");
-
+    describe("When I'm on bill page and I click on icon eye", () => {
+      test("Then bill details should appear", async () => {
+        const root = document.createElement("div")
+        root.setAttribute("id", "root")
+        document.body.append(root)
+        document.getElementById('root').innerHTML = BillsUI({ data: bills })
+        // jest.mock('$', () => ({
+        //   ...jest.requireActual('$'),
+        //   modal: jest.fn(),
+        // }));
+        const store = storeMock
+        const onNavigate = jest.fn()
+        let b = new Bills({document,onNavigate,store,localStorageMock})
+        b.handleClickIconEye = jest.fn()
+        b.document.querySelector(`div[data-testid="icon-eye"]`).click()
+        expect(b.handleClickIconEye.mock.calls).toHaveLength(1);
+      })
     })
-  })
-
+    
 })
