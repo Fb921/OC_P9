@@ -1,0 +1,106 @@
+<?php
+    get_header();
+    
+    /*On récupère le numéro de la cagnotte en cours*/
+    $get_montant_total = $wpdb->get_results('SELECT meta_value FROM wp_give_formmeta WHERE meta_key="_give_form_earnings" AND form_id=319034');
+    $montant_total_actuel = (int)$get_montant_total[0]->meta_value;
+    $cagnotte_en_cours = (int)get_field("numero_de_cagnotte");
+    $nb_total_cagnotte = $montant_total_actuel/899;
+    $premiere_cagnotte = false;
+
+    if($nb_total_cagnotte == 0){ 
+        $nb_total_cagnotte = 1;
+        $premiere_cagnotte = true;
+    }
+    // echo $nb_total_cagnotte;
+    $montant_actuel_cagnotte_en_cours = 0;
+    if(($nb_total_cagnotte >= ($cagnotte_en_cours + 1)) && (!$premiere_cagnotte)){
+        $montant_actuel_cagnotte_en_cours = 899;
+    }
+    else{
+        // $montant_actuel_cagnotte_en_cours = $montant_total_actuel - (899*$cagnotte_en_cours);
+        $montant_actuel_cagnotte_en_cours = fmod($montant_total_actuel, 899);
+    }
+    
+    $montant_don_max = 899 - $montant_actuel_cagnotte_en_cours;
+    $lien_img = get_the_post_thumbnail_url();
+    $title = get_the_title();
+    $title = explode("°",$title);
+    $title_begin = $title[0];
+    // $title_number = substr($title[1],-1);
+    $title_number = intval($title[1]);
+    $title_number++;
+    $title = $title_begin."°".$title_number;
+?>
+    <!-- On affiche les données de base de la cagnotte -->
+    <main>
+        <h1><?php echo $title;?></h1>
+        <!-- On affiche une image au hasard -->
+        <div id="img_container">
+            <img src="<?php echo $lien_img;?>"/>
+        </div>
+        <div id="info_container">Il reste <?php echo $montant_don_max;?>€ afin de pouvoir construire un puits.</div>
+        <div id="jauge_container">
+            <div id="jauge_total-container">
+                <div id="current-jauge-montant-container" style="width:<?php echo (($montant_actuel_cagnotte_en_cours*100)/899);?>%"></div>
+            </div>
+            <div id="current-jauge-montant_txt-container" style="width:<?php echo (($montant_actuel_cagnotte_en_cours*100)/899);?>%"><span><?php echo $montant_actuel_cagnotte_en_cours;?>€</span></div>
+        </div>
+        <div id="paiement_container">
+            <?php if($montant_don_max == 0): ?>
+                <div>Cette cagnotte est déjà cloturée.Vous pouvez tout de même participer à la cagnotte en cours : <a style="color:#60BFB6" href="/cagnotte/cagnotte-n<?php echo floor($nb_total_cagnotte); ?>">ici</a></div>
+            <?php else: ?>
+                <!-- Si on est sur la cagnotte en cours on affiche le formulaire Give pour permettre les dons -->
+                <div id="formulaire_container">
+                    <?php echo do_shortcode('[give_form id="319034"]'); ?>
+                </div>
+                <?php endif ?>
+            </div>
+          <!--  <div class="products_container">
+                <h2>Vous trouverez aussi sur Kebchi ...</h2>
+                <?php echo do_shortcode('[products limit=4 orderby=rand]'); ?>
+            </div>-->
+    </main>
+    <script>document.querySelector("title").textContent = "<?php echo $title?>";</script>
+
+
+    <script>
+        // On récupère le montant max
+        let montant_max = <?php echo $montant_don_max; ?>;
+        montant_max = parseInt(montant_max);
+
+        // On crée une div avec un message d'erreur
+        let div_error = document.createElement("div");
+        div_error.setAttribute("id","div_error");
+        div_error.innerHTML = "<div>Vous ne pouvez pas donner plus de "+montant_max+"€ pour cette cagnotte !</div>";
+        document.querySelector(".give-total-wrap").appendChild(div_error);
+
+        // On détecte l'erreur
+        document.querySelector("#give-amount").oninput = function(){
+            let montant_saisi = parseFloat(document.querySelector("#give-amount").value);
+            console.log(montant_saisi);
+            if(!Number.isInteger(montant_saisi)){
+                montant_saisi = Math.ceil(montant_saisi);
+                console.log(montant_saisi);
+            }
+            if(montant_saisi > montant_max){
+                montant_saisi = montant_max;
+                document.querySelector("#div_error").style.cssText = "display:block";
+                console.log(montant_saisi);
+            }
+            if(!montant_saisi){
+                montant_saisi="";
+            }
+            document.querySelector("#give-amount").value = montant_saisi;
+        }
+        document.querySelector("#give-amount").onchange = function(){
+            let montant_saisi = parseFloat(document.querySelector("#give-amount").value);
+            console.log(montant_saisi)
+            if(!montant_saisi){
+                montant_saisi=1;
+                document.querySelector("#give-amount").value = montant_saisi;
+            }
+        }
+    </script>
+
+<?php get_footer();

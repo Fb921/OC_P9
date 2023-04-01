@@ -1,0 +1,83 @@
+<?php
+
+get_header();
+
+global $wpdb;
+
+$get_total_amount = $wpdb->get_results('SELECT meta_value FROM wp_give_formmeta WHERE meta_key="_give_form_earnings" AND form_id=319034');
+$total_amount = (int)$get_total_amount[0]->meta_value;
+$nb_cagnotte_en_cours = floor($total_amount/899);
+$amount_cagnotte_en_cours = $total_amount - (899*$nb_cagnotte_en_cours);
+// echo "Montant total \n";
+// echo var_dump($get_total_amount);
+// echo "nb_cagnotte_en_cours :".$nb_cagnotte_en_cours."\n";
+// echo "montant cagnotte en cours :".$amount_cagnotte_en_cours."\n";
+
+?>
+
+<main class="archive-cagnotte_main-container">
+  <h1>Cagnottes de puits</h1>
+  <section class="archive-cagnotte-en-cours_container">
+    <h2>Cagnotte en cours</h2>
+    <h3>Cagnotte n°<?php echo $nb_cagnotte_en_cours+1; ?></h3>
+    <div class="montant_txt">Montant de la cagnotte :</div>
+    <div class="jauge_parent-container">
+        <div class="jauge_container">
+            <div class="jauge_element" style="width:<?php echo ($amount_cagnotte_en_cours*100)/899; ?>%"></div>
+        </div>
+        <div class="jauge_txt" style="width:<?php echo ($amount_cagnotte_en_cours*100)/899; ?>%;text-align:right"><span class="current-montant_txt"><?php echo $amount_cagnotte_en_cours; ?>€</span></div>
+    </div>
+    <div class="participaion-link_container"><a class="participation_link" href="https://kebchi.fr/cagnotte/cagnotte-n<?php echo $nb_cagnotte_en_cours;?>">Je participe !</a></div>
+  </section>
+  <div class="separative-line"></div>
+  <div class="archive-cagnotte_sub-container">
+    <h2>Toutes les cagnottes</h2>
+
+    <div class="archive-cagnotte_container">
+        <?php if (have_posts()) :
+            while (have_posts()) :
+                the_post();
+
+                $current_nb = (int)get_field("numero_de_cagnotte");
+
+                if($current_nb == $nb_cagnotte_en_cours){
+                    $current_amount = $total_amount - (899*$current_nb);
+                }else{
+                    $current_amount = 899;
+                }
+                
+                $title_cagnotte = $current_nb+1;
+        ?>
+            <article class="cagnotte_container" id="<?php if($current_nb == $nb_cagnotte_en_cours){echo "cagnotte_en_cours";}else{the_title();} ?>">
+                <div id="thumbnail_container">
+                   <img src="<?php echo get_the_post_thumbnail_url();?>"/> 
+                </div>
+                <h3><?php echo "Cagnotte n°".$title_cagnotte; ?></h3>
+                <div class="montant_txt">Montant de la cagnotte :</div>
+                <div class="jauge_container">
+                    <div class="jauge_element" style="width:<?php echo ($current_amount*100)/899; ?>%"></div>
+                </div>
+                <div style="width:<?php echo ($current_amount*100)/899;?>%;text-align:right"><?php echo $current_amount; ?>€</div>
+                <div class="participaion-link_container"><a href="<?php echo get_permalink();?>" class="participation_link">Je participe !</a></div>
+            </article>
+        <?php endwhile;?>
+
+    </div>
+
+    <div class="archive-cagnotte_pagination">
+        <?php
+            the_posts_pagination();
+
+            
+
+        endif;?>
+    </div>
+
+
+  </div>
+
+</main>
+
+<?php
+
+get_footer();

@@ -80,10 +80,7 @@ describe("Given I am connected as an employee", () => {
         root.setAttribute("id", "root")
         document.body.append(root)
         document.getElementById('root').innerHTML = BillsUI({ data: bills })
-        // jest.mock('$', () => ({
-        //   ...jest.requireActual('$'),
-        //   modal: jest.fn(),
-        // }));
+
         const store = storeMock
         const onNavigate = jest.fn()
         let b = new Bills({document,onNavigate,store,localStorageMock})

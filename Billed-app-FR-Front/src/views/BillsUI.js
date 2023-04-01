@@ -28,7 +28,11 @@ function sort_by_date(d1,d2){
 const rows = (data) => {
   if(data && data.length){
     data=data.sort(sort_by_date);
+    data.forEach(d => {
+      d.date = d.date.replace("Feb","Fév").replace("Jul","Jui").replace("Jun","Jui").replace("Apr","Avr").replace("May","Mai").replace('Aug','Aoû').replace('Dec',"Déc");
+    })
   }
+
   /*Ici on trie les bills par date */
   return (data && data.length) ? data.map(bill => row(bill)).join("") : ""
 }

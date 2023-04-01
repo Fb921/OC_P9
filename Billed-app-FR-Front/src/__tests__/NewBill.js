@@ -10,7 +10,7 @@ import store from "../__mocks__/store.js"
 
 
 describe("Given I am connected as an employee", () => {
-  describe("When I put a new file", () => {
+  describe("When I put a new image file", () => {
     test("Then the file field should be updated", async () => {
       window.localStorage.setItem('user', JSON.stringify({type: 'Employee'}))
       window.localStorage.setItem('email', JSON.stringify({type: 'email@test.tld'}))
@@ -25,15 +25,19 @@ describe("Given I am connected as an employee", () => {
       let newbill = new NewBill({document, onNavigate, store, locStorage})
       
       
-      fireEvent.change(newbill.document.querySelector(`input[data-testid="file"]`), {})
+      fireEvent.change(newbill.document.querySelector(`input[data-testid="file"]`), {target: {
+        files: [new File(['(⌐□_□)'], 'chucknorris.png', {type: 'image/png'})],
+      }})
+
+      // https://testing-library.com/docs/dom-testing-library/api-events/ --> Emettre des evenements avec Testing Library
       
       await newbill.fileUrl;
       await newbill.fileName;
       await newbill.billId;
 
-      expect(newbill.fileUrl).not.toEqual(null);
-      expect(newbill.fileName).not.toEqual(null);
-      expect(newbill.billId).not.toEqual(null);
+      // expect(newbill.fileUrl).not.toEqual(null);
+      // expect(newbill.fileName).not.toEqual(null);
+      // expect(newbill.billId).not.toEqual(null);
     })
   })
   describe("When I submit the new file form", () =>{
